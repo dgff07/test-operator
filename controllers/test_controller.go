@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 
+	//v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -70,5 +71,6 @@ func (r *TestReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 func (r *TestReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&demov1alpha1.Test{}).
+		//Owns(&v1.Namespace{}).
 		Complete(r)
 }

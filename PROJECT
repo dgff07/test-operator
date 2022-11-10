@@ -16,4 +16,8 @@ resources:
   kind: Test
   path: github.com/dgff07/test-operator/api/v1alpha1
   version: v1alpha1
+- controller: true
+  domain: com.example
+  kind: Namespace
+  version: v1
 version: "3"
