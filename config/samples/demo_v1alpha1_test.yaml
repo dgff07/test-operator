@@ -9,5 +9,5 @@ metadata:
     app.kubernetes.io/created-by: test-operator
   name: test-sample
 spec:
-  size: 5
+  size: 2
 

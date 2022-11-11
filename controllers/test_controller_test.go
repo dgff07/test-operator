@@ -11,23 +11,28 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var _ = Describe("Test controller", func() {
 	Context("Test controller test", func() {
 
 		const TestResourceName = "test-resource-example"
-
+		const NamespaceName = "int-test"
 		ctx := context.Background()
 
 		namespace := &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      TestResourceName,
-				Namespace: TestResourceName,
+				Name:      NamespaceName,
+				Namespace: NamespaceName,
 			},
 		}
 
-		typeNamespaceName := types.NamespacedName{Name: TestResourceName, Namespace: TestResourceName}
+		// Used to check if the Test resource was created
+		typeNamespaceName := types.NamespacedName{Name: TestResourceName, Namespace: NamespaceName}
+
+		// Used to check if the new namespace with the same name of test was created
+		typeNewNamespaceName := types.NamespacedName{Name: TestResourceName, Namespace: ""}
 
 		BeforeEach(func() {
 			By("Creating the Namespace to perform the tests")
@@ -52,7 +57,7 @@ var _ = Describe("Test controller", func() {
 			testResource := &demov1alpha1.Test{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      TestResourceName,
-					Namespace: namespace.Name,
+					Namespace: NamespaceName,
 				},
 				Spec: demov1alpha1.TestSpec{
 					Size: 1,
@@ -65,13 +70,24 @@ var _ = Describe("Test controller", func() {
 			Eventually(func() error {
 				found := &demov1alpha1.Test{}
 				return k8sClient.Get(ctx, typeNamespaceName, found)
-			}, time.Second*3, time.Second).Should(Succeed())
+			}, time.Second*4, time.Second).Should(Succeed())
+
+			By("Reconciling the custom resource created")
+			testReconciler := &TestReconciler{
+				Client: k8sClient,
+				Scheme: k8sClient.Scheme(),
+			}
+
+			_, err = testReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: typeNamespaceName,
+			})
+			Expect(err).To(Not(HaveOccurred()))
 
 			By("Checking if the namespace is created with the same name as the Test resource")
 			Eventually(func() error {
 				found := &v1.Namespace{}
-				return k8sClient.Get(ctx, typeNamespaceName, found)
-			}, time.Second*3, time.Second).Should(Succeed())
+				return k8sClient.Get(ctx, typeNewNamespaceName, found)
+			}, time.Second*4, time.Second).Should(Succeed())
 
 		})
 	})
