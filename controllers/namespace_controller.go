@@ -83,8 +83,7 @@ func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	printLabelsAdded(namespace.Labels, lastNamespace.Labels, &logger)
 	printLabelsRemovedOrUpdated(namespace.Labels, lastNamespace.Labels, &logger)
 
-	lastNamespace.Labels = namespace.Labels
-	bytes, err := json.Marshal(lastNamespace)
+	bytes, err := json.Marshal(namespace)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
