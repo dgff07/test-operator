@@ -7,7 +7,6 @@ import (
 	demov1alpha1 "github.com/dgff07/test-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -21,7 +20,7 @@ var _ = Describe("Test controller", func() {
 		const NamespaceName = "int-test"
 		ctx := context.Background()
 
-		namespace := &corev1.Namespace{
+		namespace := &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      NamespaceName,
 				Namespace: NamespaceName,
@@ -38,9 +37,6 @@ var _ = Describe("Test controller", func() {
 			By("Creating the Namespace to perform the tests")
 			err := k8sClient.Create(ctx, namespace)
 			Expect(err).To(Not(HaveOccurred()))
-
-			By("Override stdout to capture the logs in the tests")
-
 		})
 
 		AfterEach(func() {
